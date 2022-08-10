@@ -1,0 +1,56 @@
+import cv2
+import os
+
+
+# data
+Know_distance =30 # in centimeters
+#mine is 14.3 something, measure your face width, are google it
+Know_width_face =14.3 #centimeters
+# chose your camera
+cam_number =1
+cascPath=os.path.dirname(cv2.__file__)+"/haarcascade_frontalface_default.xml"
+face_detector= faceCascade = cv2.CascadeClassifier('C:\\opencv\\build\\etc\\haarcascades\\haarcascade_frontalface_default.xml')
+camera = cv2.VideoCapture(0)
+def FocalLengthFinder(Measured_distance, real_width_of_face, width_of_face_in_image):
+    # finding focal length
+    focal_length = (width_of_face_in_image* Measured_distance)/real_width_of_face
+    return focal_length
+
+def Distance_Measurement(face_real_width, Focal_Length, face_with_in_image):
+   distance= (face_real_width * Focal_Length)/face_with_in_image
+   return distance
+def Face_Detection(image):
+    f_width =0
+    Gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    faces = face_detector.detectMultiScale(Gray_image, 1.3, 5)
+    for (x, y, h, w) in faces:
+        cv2.rectangle(image, (x,y), (x+w, y+h), (255,255,255), 1)
+        f_width =w
+    print(f_width)
+    return f_width, image
+reference_image =cv2.imread("D:/rf.png")
+face_w , image_read= Face_Detection(reference_image)
+cv2.imshow("ref", image_read)
+calculate_focal_length =FocalLengthFinder(Know_distance, Know_width_face,face_w)
+print(calculate_focal_length)
+font = cv2.FONT_HERSHEY_SIMPLEX
+while True:
+    ret, frame = camera.read()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # change the color of image
+    # print(height, width)
+
+    faces = face_detector.detectMultiScale(gray, 1.3, 5)
+    for (x, y, h, w) in faces:
+        cv2.rectangle(frame, (x,y), (x+w, y+h), (255,255,255), 1)
+        distance =Distance_Measurement(Know_width_face,calculate_focal_length, w)
+        print(distance)
+
+
+
+    cv2.imshow('frame', frame)
+
+    if cv2.waitKey(1)==ord('q'):
+        break
+camera.release()
+cv2.destroyAllWindows()
