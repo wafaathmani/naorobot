@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+KNOWN_DISTANCE = 30.0
+KNOWN_PERSON_HEIGHT = 8
+import cv2
+import os
+from PIL import Image
+
+
+cascPath=os.path.dirname(cv2.__file__)+"/haarcascade_frontalface_default.xml"
+faceCascade = cv2.CascadeClassifier(cascPath)
+
+image = 'D:/ball_downfront1.png'
+img = cv2.imread('D:/person.jpg')
+
+
+def FocalLength(measured_distance, real_width, width_in_rf_image):
+    focal_length = (width_in_rf_image * measured_distance) / real_width
+    return focal_length
+
+
+while True:
+
+    # Capture frame-by-frame
+    frames =img
+
+    gray = cv2.cvtColor(frames, cv2.COLOR_BGR2GRAY)
+
+    faces = faceCascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30),
+        flags=cv2.CASCADE_SCALE_IMAGE
+    )
+
+    # Draw a rectangle around the faces
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frames, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+
+    # Display the resulting frame
+    cv2.imshow('Video', frames)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
