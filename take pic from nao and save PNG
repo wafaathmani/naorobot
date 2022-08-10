@@ -1,0 +1,21 @@
+from naoqi import ALProxy
+IP="-------------"
+from PIL import Image
+PORT=9559
+path = 'D:/' +  '/'
+cam = ALProxy("ALVideoDevice", IP, PORT)
+resolution = 2 # VGA (640*480px)
+colorSpace = 11 # RGB
+
+def pic(_name, CameraIndex):
+    videoClient = cam.subscribeCamera("python_client", CameraIndex, resolution, colorSpace, 5)
+    naoImage = cam.getImageRemote(videoClient)
+    cam.unsubscribe(videoClient)
+    # Get the image size and pixel array.
+    imageWidth = naoImage[0]
+    imageHeight = naoImage[1]
+    array = naoImage[6]
+    im = Image.frombytes("RGB", (imageWidth, imageHeight), str(array))
+    im.save(_name, "PNG")
+if __name__ == "__main__":
+    pic(path + 'f3.png',0)
